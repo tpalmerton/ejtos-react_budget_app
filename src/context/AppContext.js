@@ -1,3 +1,4 @@
+// AppContext.js
 import React, { createContext, useReducer } from 'react';
 
 // 5. The reducer - this is used to update the state, based on the action
@@ -43,34 +44,50 @@ export const AppReducer = (state, action) => {
                     ...state,
                     expenses: [...red_expenses],
                 };
-            case 'DELETE_EXPENSE':
-            action.type = "DONE";
-            state.expenses.map((currentExp)=> {
+        case 'DELETE_EXPENSE':
+            state.expenses = state.expenses.map((currentExp) => {
                 if (currentExp.name === action.payload) {
-                    budget = state.budget + currentExp.cost
-                    currentExp.cost =  0;
+                    budget = state.budget + currentExp.cost;
+                    currentExp.cost = 0;
                 }
-                return currentExp
-            })
-            action.type = "DONE";
+                return currentExp;
+            });
             return {
                 ...state,
-                budget
+                budget,
             };
         case 'SET_BUDGET':
-            action.type = "DONE";
-            state.budget = action.payload;
-
             return {
                 ...state,
+                budget: action.payload,
             };
         case 'CHG_CURRENCY':
-            action.type = "DONE";
-            state.currency = action.payload;
             return {
-                ...state
+                ...state,
+                currency: action.payload,
+            };
+        case 'CHG_LOCATION':
+            let newCurrency = '£';
+            switch (action.payload) {
+                case '£':
+                    newCurrency = '£';
+                    break;
+                case '₹':
+                    newCurrency = '₹';
+                    break;
+                case '€':
+                    newCurrency = '€';
+                    break;
+                case 'CAD':
+                    newCurrency = 'CAD';
+                    break;
+                default:
+                    newCurrency = '£';
             }
-
+            return {
+                ...state,
+                currency: newCurrency,
+            };
         default:
             return state;
     }
@@ -86,7 +103,7 @@ const initialState = {
         { id: "Human Resource", name: 'Human Resource', cost: 40 },
         { id: "IT", name: 'IT', cost: 500 },
     ],
-    currency: '£'
+    currency: '£',
 };
 
 // 2. Creates the context this is the thing our components import and use to get the state
@@ -100,8 +117,8 @@ export const AppProvider = (props) => {
     let remaining = 0;
 
     if (state.expenses) {
-            const totalExpenses = state.expenses.reduce((total, item) => {
-            return (total = total + item.cost);
+        const totalExpenses = state.expenses.reduce((total, item) => {
+            return (total += item.cost);
         }, 0);
         remaining = state.budget - totalExpenses;
     }
@@ -113,7 +130,7 @@ export const AppProvider = (props) => {
                 budget: state.budget,
                 remaining: remaining,
                 dispatch,
-                currency: state.currency
+                currency: state.currency,
             }}
         >
             {props.children}
